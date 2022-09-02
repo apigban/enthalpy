@@ -23,7 +23,7 @@ resource "time_sleep" "wait_180_seconds" {
   create_duration = "180s"
 }
 
-# resource "null_resource" "avogadro-ready" {
+resource "null_resource" "avogadro-ready" {
 # # # Wait for instance to be ready
 # #     provisioner "remote-exec" {
 # #         connection {
@@ -34,12 +34,12 @@ resource "time_sleep" "wait_180_seconds" {
 # #         }
 # #     }
 
-# # Execute main ansible playbook
-#     provisioner "local-exec" {
-#         command = "ansible-playbook ../ansible/tasks/main.yaml -i ../ansible/inventory.yaml --vault-password-file ../ansible/nocommit/vaultpass"
-#     }
+# Execute main ansible playbook
+    provisioner "local-exec" {
+        command = "ansible-playbook ../ansible/tasks/main.yaml -i ../ansible/inventory.yaml --vault-password-file ../ansible/nocommit/vaultpass"
+    }
     
-#     depends_on = [
-#       time_sleep.wait_180_seconds
-#     ]
-# }
+    depends_on = [
+      time_sleep.wait_180_seconds,
+    ]
+}
