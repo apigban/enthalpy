@@ -48,3 +48,4 @@ ansible/host_vars/
 terraform/nocommit
 terraform/.terraform
 terraform/providers
+ansible/nocommit
