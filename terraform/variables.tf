@@ -17,6 +17,7 @@ variable "user_information" {
 variable "server_information" {
   type = object({
     name = string
+    ipv4_address = string
   })
 }
 
