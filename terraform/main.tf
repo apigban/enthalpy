@@ -28,10 +28,10 @@ resource "hcloud_network_subnet" "network-subnet" {
   type         = "cloud"
   network_id   = hcloud_network.network.id
   network_zone = "eu-central"
-  ip_range     = "10.0.1.0/24"
+  ip_range     = hcloud_network.network.ip_range
 }
 
-resource "hcloud_server" "bastion" {
+resource "hcloud_server" "avogadro" {
   name        = var.server_information.name
   server_type = "cx11"
   image       = "ubuntu-20.04"
@@ -41,18 +41,23 @@ resource "hcloud_server" "bastion" {
   backups      = false
   user_data = file(data.local_file.user_data.filename)
   
+  network {
+    network_id = hcloud_network.network.id
+    ip         = var.server_information.ip_address
+  }
+
     depends_on = [
     hcloud_network_subnet.network-subnet,
   ]
 }
 
-resource "hcloud_volume" "bastion_datadisk_01" {
-  name = "bastion_datadisk_01"
+resource "hcloud_volume" "avogadro_datadisk_01" {
+  name = "avogadro_datadisk_01"
   size = 10  
-  server_id = hcloud_server.bastion.id
+  server_id = hcloud_server.avogadro.id
   automount = false
   format = "ext4"
     depends_on = [
-    hcloud_server.bastion,
+    hcloud_server.avogadro,
   ]
 }
