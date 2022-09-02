@@ -1,0 +1,28 @@
+---
+- name: main - Network - Modify Hostname
+  import_playbook: network/01-hostname.yaml
+
+- name: main - Network - Modify IPV4 Forwarding
+  import_playbook: kernel/01-net-forwarding.yaml
+
+- name: main - storage tasks
+  import_playbook: storage/01-storage-setup.yaml
+
+- name: main - package tasks
+  import_playbook: packages/01-install-packages.yaml
+
+- name: main - login tasks
+  import_playbook: login/1-user-group-creation.yaml
+
+- name: main - Container tasks
+  import_playbook: packages/02-install-docker.yaml
+
+- name: main - Docker Daemon tasks
+  import_playbook: app/docker/01-docker-daemon.yaml
+
+- name: main - Userspace VPN tasks
+  # import_playbook: app/userspace_vpn/01-openvpn.yaml  
+  import_playbook: app/userspace_vpn/01-wireguard.yaml
+
+- name: main - fail2ban tasks
+  import_playbook: app/fail2ban/01-fail2ban.yaml  

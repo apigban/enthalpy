@@ -1,0 +1,11 @@
+packages:
+  - fail2ban
+
+docker:
+  etc_path: "/etc/docker"
+  log_path: "{{ mount.datadisk_01 }}/docker/log"
+  log_rotate_path: "/etc/logrotate.d/docker-logs"
+
+fail2ban:
+  etc_path: "/etc/fail2ban"
+  conf_path: "/etc/fail2ban/jail.d"
