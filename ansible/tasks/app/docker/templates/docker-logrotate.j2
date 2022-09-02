@@ -1,0 +1,16 @@
+{{ docker.log_path }}/*/docker.log {
+  rotate 7
+  daily
+  compress
+  missingok
+  delaycompress
+  copytruncate
+}
+{{ docker.log_path }}/*.log {
+  rotate 7
+  daily
+  compress
+  missingok
+  delaycompress
+  copytruncate
+}

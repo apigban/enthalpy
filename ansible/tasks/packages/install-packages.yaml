@@ -1,0 +1,17 @@
+---
+- hosts: avogadro01
+  become: yes
+  tasks:
+  - name: Force cache update
+    apt:
+      update_cache: yes
+      
+  - name: Install default packages
+    apt: 
+      name: "{{ default.apt_pkgs }}"
+      state: latest
+
+  - name: Install custom packages for avogadro group
+    apt: 
+      name: "{{ packages }}"
+      state: latest

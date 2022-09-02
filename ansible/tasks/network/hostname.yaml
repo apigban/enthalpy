@@ -1,0 +1,9 @@
+---
+- hosts: avogadro01
+  become: yes
+  tasks:
+
+  - name: Set hostname
+    hostname:
+      name: "{{ host.name }}"
+

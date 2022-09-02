@@ -1,0 +1,39 @@
+---
+- hosts: avogadro01
+  become: true
+
+  tasks:
+
+    - name: Create custom directory for docker
+      file:
+        path: "{{ mount.datadisk_01 }}/docker"
+        state: directory
+        mode: '0755'
+
+    - name: Create custom directory for docker
+      file:
+        path: "{{ mount.datadisk_01 }}/docker/log"
+        state: directory
+        mode: '0755'        
+
+    - name: install docker daemon configuration file from template
+      template:
+        src: templates/docker/docker-daemon.json.j2
+        dest: "{{ docker.etc_path }}/daemon.json"
+        
+    - name: install docker logging configuration files from template
+      template:
+        src: templates/docker/docker-logging.j2
+        dest: "/etc/rsyslog.d/docker-logging.conf"
+
+    - name: install docker logrotate files from template
+      template:
+        src: templates/docker/docker-logrotate.j2
+        dest: "/etc/logrotate.d/docker-logrotate"
+
+    - name: Ensure docker daemon is restarted
+      service:
+        name: docker
+        state: restarted
+      become: true
+

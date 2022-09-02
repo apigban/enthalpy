@@ -1,0 +1,32 @@
+---
+- hosts: avogadro01
+  tasks:      
+
+    - name: Remove Default Fail2ban config file
+      file:
+        path: "{{ fail2ban.conf_path }}/defaults-debian.conf"
+        state: absent
+
+    - name: Copy default jail.local to {{ fail2ban.etc_path }}
+      copy:
+        src: "files/jail.local"
+        dest: "{{ fail2ban.etc_path }}"
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+
+    - name: Copy jail files to fail2ban.conf_path
+      copy:
+        src: "{{ item }}"
+        dest: "{{ fail2ban.conf_path }}"
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+      loop: "{{ lookup('fileglob', 'files/jails/*', wantlist=True) }}"
+
+    - name: Restart sshd service
+      service: 
+        name: sshd
+        state: restarted

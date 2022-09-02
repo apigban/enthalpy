@@ -1,0 +1,17 @@
+---
+- hosts: avogadro01
+  become: yes
+  tasks:
+
+  - name: Create a ext4 filesystem on data disk "{{ datadisk.path }}"
+    filesystem:
+      fstype: ext4
+      dev: "{{ datadisk.path }}"
+
+  - name: Mount datadisk by fspath
+    mount:
+      path: "{{ mount.datadisk_01 }}"
+      src: "{{ datadisk.path }}"
+      fstype: ext4
+      opts: noatime
+      state: mounted

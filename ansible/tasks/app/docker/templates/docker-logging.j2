@@ -1,0 +1,15 @@
+$FileCreateMode 0644
+template(name="DockerLogFileName" type="list") {
+   constant(value="{{ docker.log_path }}")
+   property(name="syslogtag" securepath="replace" \
+            regex.expression="docker/\\(.*\\)\\[" regex.submatch="1")
+   constant(value="/docker.log")
+}
+if $programname == 'dockerd' then \
+  {{ docker.log_path }}/combined.log
+if $programname == 'dockerd' then \
+  if $syslogtag contains 'docker/' then \
+    ?DockerLogFileName
+  else
+    {{ docker.log_path }}/no_tag/docker.log
+$FileCreateMode 0600

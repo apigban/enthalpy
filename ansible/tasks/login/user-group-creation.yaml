@@ -1,0 +1,28 @@
+---
+- hosts: avogadro01
+  become: yes
+  tasks:
+    - name: Create monitoring service account
+      user:
+        name: "{{ user.monitoring.name }}"
+        password: "{{ user.monitoring.password | password_hash('sha512') }}"
+        create_home: yes
+        home: "{{ default.home_dir }}/{{ user.monitoring.name }}"
+        shell: /bin/bash
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: "{{ default.home_dir }}/{{ user.monitoring.name }}/.ssh/id_rsa"
+        system: yes
+
+
+    - name: Create ansible service account
+      user:
+        name: "{{ user.ansiblesvc.name }}"
+        password: "{{ user.ansiblesvc.password | password_hash('sha512') }}"
+        create_home: yes
+        home: "{{ default.home_dir }}/{{ user.ansiblesvc.name }}"
+        shell: /bin/bash
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: "{{ default.home_dir }}/{{ user.ansiblesvc.name }}/.ssh/id_rsa"
+        system: yes
