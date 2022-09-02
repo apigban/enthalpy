@@ -14,6 +14,10 @@ provider "hcloud" {
 data "hcloud_ssh_keys" "all_keys" {
 }
 
+data "hcloud_firewall" "firewall-1" {
+  name = "firewall-1"
+}
+
 # File definition for user-data
 data "local_file" "user_data" {
     filename = "nocommit/userdata.yaml"
@@ -40,14 +44,17 @@ resource "hcloud_server" "avogadro" {
   keep_disk    = false
   backups      = false
   user_data = file(data.local_file.user_data.filename)
-  
+  firewall_ids = [data.hcloud_firewall.firewall-1.id]
+
+
   network {
     network_id = hcloud_network.network.id
-    ip         = var.server_information.ip_address
+    ip         = var.server_information.ipv4_address
   }
 
     depends_on = [
     hcloud_network_subnet.network-subnet,
+    data.hcloud_firewall.firewall-1
   ]
 }
 
