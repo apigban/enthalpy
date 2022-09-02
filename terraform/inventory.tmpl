@@ -1,0 +1,16 @@
+ansible_host: ${avogadro-ipv4}
+ansible_port: 4444
+
+datadisk:
+  id: ${avogadro-disk-id}
+  name: ${avogadro-disk-name}
+  path: ${avogadro-disk-fspath}
+
+mount:
+  datadisk_01: /mnt/${avogadro-disk-name}
+
+host:
+  name: ${server-name}
+  ipv4: ${avogadro-ipv4}
+  ipv6: ${avogadro-ipv6}
+  port: 4444
