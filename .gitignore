@@ -49,3 +49,4 @@ terraform/nocommit
 terraform/.terraform
 terraform/providers
 ansible/nocommit
+ansible/groupvars/all/vault.yaml
