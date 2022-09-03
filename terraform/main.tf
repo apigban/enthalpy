@@ -56,13 +56,13 @@ write_files:
       net.ipv4.ip_forward=1
   - path: /etc/ssh/sshd_config
     content: |
+      Subsystem sftp /usr/lib/openssh/sftp-server
       Port 4444
-      AllowUsers ${var.user_information.name}
-      PasswordAuthentication no
+      PasswordAuthentication yes
       PermitEmptyPasswords no
       PermitRootLogin yes
       X11Forwarding yes
-      Match User ${var.user_information.name}
+      Match User ${var.user_information.name},root
         PasswordAuthentication yes
 runcmd:
   - sysctl -w net.ipv6.conf.all.disable_ipv6=1
@@ -96,6 +96,8 @@ packages:
 
 ########  Users
 users: 
+  - name: root
+    lock_passwd: false
   - name: ${var.user_information.name}
     gecos: ${var.user_information.gecos}
     primary_group: ${var.user_information.name}
@@ -106,6 +108,12 @@ users:
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     groups: sudo
     shell: /bin/bash
+disable_root: false
+ssh_pwauth: true
+chpasswd:
+  list: |
+    root:${var.user_information.passwd}
+  expire: False
 
 ########  Post-config tasks
 final_message: "Instance up after $UPTIME seconds" 
@@ -131,17 +139,6 @@ data "template_cloudinit_config" "userdata-yaml" {
 resource "hcloud_network" "network" {
   name     = var.network_information.name
   ip_range = var.network_information.cidr
-}
-
-data "cloudinit_config" "foo" {
-  gzip = false
-  base64_encode = false
-
-  part {
-    content_type = "text/x-shellscript"
-    content = "baz"
-    filename = "nocommit/userdata.yaml"
-  }
 }
 
 resource "hcloud_network_subnet" "network-subnet" {
