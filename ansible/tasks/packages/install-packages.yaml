@@ -1,5 +1,5 @@
 ---
-- hosts: avogadro01
+- hosts: avogadro
   become: yes
   tasks:
   - name: Force cache update

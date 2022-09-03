@@ -13,7 +13,7 @@ resource "local_file" "AnsibleInventory" {
         }
         
     )
-    filename = "../ansible/host_vars/avogadro01.yaml"
+    filename = "../ansible/host_vars/avogadro.yaml"
     depends_on = [ hcloud_server.avogadro,
                     hcloud_volume.avogadro_datadisk_01 ]
 }
