@@ -3,4 +3,4 @@ all:
   children:
     avogadro:
       hosts:
-        avogadro[01:10]:
+        avogadro:
