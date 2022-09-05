@@ -28,14 +28,6 @@
       pip:
         name: docker
 
-    - name: Install docker-compose
-      remote_user: "{{ user.apigban.name }}"
-      get_url: 
-        url: https://github.com/docker/compose/releases/download/1.28.6/docker-compose-Linux-x86_64
-        dest: /usr/local/bin/docker-compose
-        mode: 'ug+x'
-        owner: "{{ user.apigban.name }}"
-
     - name: Add "{{ user.apigban.name }}" to docker group
       user: 
         name: "{{ user.apigban.name }}"
