@@ -1,6 +1,7 @@
 ---
 - hosts: avogadro
   become: yes
+
   tasks:
   - name: Force cache update
     apt:
