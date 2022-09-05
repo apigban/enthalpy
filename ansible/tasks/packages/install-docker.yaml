@@ -21,7 +21,8 @@
         state: present
 
     - name: Update apt and install docker-ce
-      apt: update_cache=yes name=docker-ce state=latest
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ "docker-ce", "docker-ce-cli", "containerd.io", "docker-compose-plugin"]
 
     - name: Install Docker Module for Python
       pip:
