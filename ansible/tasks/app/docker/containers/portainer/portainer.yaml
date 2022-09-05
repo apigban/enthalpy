@@ -1,0 +1,28 @@
+---
+- hosts: avogadro
+
+  tasks:
+  - name: pull portainer
+    docker_image:
+      pull: yes
+      name: portainer/portainer-ce:latest
+
+  - name: Create a volume
+    docker_volume:
+      name: portainer_data
+
+  - name: Start portainer, connect to network
+    docker_container:
+      name: portainer
+      hostname: portainer
+      restart_policy: "unless-stopped"
+      image: "portainer/portainer-ce:latest"
+      published_ports:
+        - "8000:8000"
+        - "9443:9443"
+      volumes:
+        - "portainer_data:/data"
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      state: "started"
+      keep_volumes: "yes"
+
