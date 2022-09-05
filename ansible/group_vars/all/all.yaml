@@ -26,5 +26,4 @@ default:
     - nmap
     - iperf
     - python3-sshtunnel
-
   home_dir: "{{ mount.datadisk_01 }}/home"
