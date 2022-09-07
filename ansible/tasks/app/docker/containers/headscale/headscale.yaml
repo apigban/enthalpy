@@ -64,6 +64,10 @@
         - 8080:8080
         - 9090:9090
       command: headscale serve
+
+  - name: Create a VPN namespace
+    ansible.builtin.command: /usr/bin/docker exec headscale headscale namespaces create homelab
+
 # version: '3.5'
 # services:
 #   headscale:
