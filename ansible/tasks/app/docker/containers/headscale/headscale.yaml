@@ -1,0 +1,64 @@
+---
+- hosts: avogadro
+  become: true
+  gather_facts: false
+
+  tasks:
+  - name: Create headscale container volume
+    community.docker.docker_volume:
+      name: headscale_data
+
+# https://github.com/juanfont/headscale/blob/main/docs/running-headscale-container.md#configure-and-run-headscale
+  - name: Prepare a directory, used to hold headscale configuration and the SQLite database
+    ansible.builtin.file:
+      path: /var/lib/docker/volumes/headscale_data/_data/config
+      state: directory
+
+  - name: Create an empty sqlite3 DB file
+    ansible.builtin.file:
+      path: /var/lib/docker/volumes/headscale_data/_data/config/db.sqlite
+      state: touch
+
+  - name: render headscale config from template
+    ansible.builtin.template:
+      src: templates/config.yaml.j2
+      dest: /var/lib/docker/volumes/headscale_data/_data/config/config.yaml
+
+  - name: Create a build directory if it does not exist
+    file:
+      path: /tmp/headscale
+      state: directory
+      mode: '0755'
+
+  - name: Download headscale src
+    git:
+      repo: https://github.com/juanfont/headscale.git
+      dest: /tmp/headscale
+
+  - name: Build a headscale image
+    community.docker.docker_image:
+      name: headscale
+      tag: latest
+      build:
+        path: /tmp/headscale
+        dockerfile: /tmp/headscale/Dockerfile.alpine
+      state: present
+      source: build
+
+# This command will mount config/ under /etc/headscale,
+# forward port 8080,9090 out of the container so the headscale instance becomes available
+  - name: Start container, connect to network and link
+    community.docker.docker_container:
+      name: headscale
+      restart_policy: unless-stopped
+      image: headscale:latest
+      volumes:
+        - /var/lib/docker/volumes/headscale_data/_data/config/:/etc/headscale/
+        - ./container-data/data:/var/lib/headscale
+      published_ports:
+        - 8080:8080
+        - 9090:9090
+      command: headscale serve
+
+  - name: Create a VPN namespace
+    ansible.builtin.command: /usr/bin/docker exec headscale headscale namespaces create homelab
