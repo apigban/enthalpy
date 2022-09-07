@@ -24,11 +24,6 @@
       src: templates/config.yaml.j2
       dest: /var/lib/docker/volumes/headscale_data/_data/config/config.yaml
 
-  # - name: Download headscale config example
-  #   ansible.builtin.get_url:
-  #     url: https://raw.githubusercontent.com/juanfont/headscale/main/config-example.yaml
-  #     dest: /var/lib/docker/volumes/headscale_data/_data/config/config.yaml
-
   - name: Create a build directory if it does not exist
     file:
       path: /tmp/headscale
@@ -67,67 +62,3 @@
 
   - name: Create a VPN namespace
     ansible.builtin.command: /usr/bin/docker exec headscale headscale namespaces create homelab
-
-# version: '3.5'
-# services:
-#   headscale:
-#     image: headscale/headscale:latest-alpine
-#     container_name: headscale
-#     volumes:
-#       - ./container-config:/etc/headscale
-#       - ./container-data/data:/var/lib/headscale
-#     # ports:
-#       # - 27896:8080
-#     command: headscale serve
-#     restart: unless-stopped
-#   headscale-ui:
-#     image: ghcr.io/gurucomputing/headscale-ui:latest
-#     restart: unless-stopped
-#     container_name: headscale-ui
-#     # ports:
-#       # - 9443:443
-
-#   - name: Start portainer, connect to network
-#     docker_container:
-#       name: portainer
-#       hostname: portainer
-#       restart_policy: "unless-stopped"
-#       image: "portainer/portainer-ce:latest"
-#       published_ports:
-#         - "8000:8000"
-#         - "9443:9443"
-#       volumes:
-#         - "portainer_data:/data"
-#         - "/var/run/docker.sock:/var/run/docker.sock"
-#       state: "started"
-#       keep_volumes: "yes"
-
-
-# ---
-# version: "2.1"
-# services:
-#   wireguard:
-#     image: lscr.io/linuxserver/wireguard:latest
-#     container_name: wireguard
-#     cap_add:
-#       - NET_ADMIN
-#       - SYS_MODULE
-#     environment:
-#       - PUID=1000
-#       - PGID=1000
-#       - TZ=Europe/London
-#       - SERVERURL=wireguard.domain.com #optional
-#       - SERVERPORT=51820 #optional
-#       - PEERS=1 #optional
-#       - PEERDNS=auto #optional
-#       - INTERNAL_SUBNET=10.13.13.0 #optional
-#       - ALLOWEDIPS=0.0.0.0/0 #optional
-#       - LOG_CONFS=true #optional
-#     volumes:
-#       - /path/to/appdata/config:/config
-#       - /lib/modules:/lib/modules
-#     ports:
-#       - 51820:51820/udp
-#     sysctls:
-#       - net.ipv4.conf.all.src_valid_mark=1
-#     restart: unless-stopped
