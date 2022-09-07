@@ -1,0 +1,104 @@
+---
+- hosts: avogadro
+  become: true
+  gather_facts: false
+
+  tasks:
+  - name: Create headscale container volume
+    community.docker.docker_volume:
+      name: headscale_data
+
+  - name: Create a build directory if it does not exist
+    file:
+      path: /tmp/headscale
+      state: directory
+      mode: '0755'
+
+  - name: Download headscale src
+    git:
+      repo: https://github.com/juanfont/headscale.git
+      dest: /tmp/headscale
+
+  - name: Build a headscale image
+    community.docker.docker_image:
+      name: headscale
+      tag: latest
+      build:
+        path: /tmp/headscale
+        dockerfile: /tmp/headscale/Dockerfile
+      state: present
+      source: build
+# TODO - configure and run headscale
+  # - name: Start container, connect to network and link
+  #   community.docker.docker_container:
+  #     name: headscale
+  #     image: headscale:latest
+  #     volumes:
+  #       - ./container-config:/etc/headscale
+  #       - ./container-data/data:/var/lib/headscale
+  #     command: headscale serve
+  #     restart: unless-stopped
+
+# version: '3.5'
+# services:
+#   headscale:
+#     image: headscale/headscale:latest-alpine
+#     container_name: headscale
+#     volumes:
+#       - ./container-config:/etc/headscale
+#       - ./container-data/data:/var/lib/headscale
+#     # ports:
+#       # - 27896:8080
+#     command: headscale serve
+#     restart: unless-stopped
+#   headscale-ui:
+#     image: ghcr.io/gurucomputing/headscale-ui:latest
+#     restart: unless-stopped
+#     container_name: headscale-ui
+#     # ports:
+#       # - 9443:443
+
+#   - name: Start portainer, connect to network
+#     docker_container:
+#       name: portainer
+#       hostname: portainer
+#       restart_policy: "unless-stopped"
+#       image: "portainer/portainer-ce:latest"
+#       published_ports:
+#         - "8000:8000"
+#         - "9443:9443"
+#       volumes:
+#         - "portainer_data:/data"
+#         - "/var/run/docker.sock:/var/run/docker.sock"
+#       state: "started"
+#       keep_volumes: "yes"
+
+
+# ---
+# version: "2.1"
+# services:
+#   wireguard:
+#     image: lscr.io/linuxserver/wireguard:latest
+#     container_name: wireguard
+#     cap_add:
+#       - NET_ADMIN
+#       - SYS_MODULE
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/London
+#       - SERVERURL=wireguard.domain.com #optional
+#       - SERVERPORT=51820 #optional
+#       - PEERS=1 #optional
+#       - PEERDNS=auto #optional
+#       - INTERNAL_SUBNET=10.13.13.0 #optional
+#       - ALLOWEDIPS=0.0.0.0/0 #optional
+#       - LOG_CONFS=true #optional
+#     volumes:
+#       - /path/to/appdata/config:/config
+#       - /lib/modules:/lib/modules
+#     ports:
+#       - 51820:51820/udp
+#     sysctls:
+#       - net.ipv4.conf.all.src_valid_mark=1
+#     restart: unless-stopped
