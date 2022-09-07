@@ -1,0 +1,11 @@
+---
+- hosts: avogadro
+  become: true
+  gather_facts: false
+
+  tasks:
+  - name: Deploy headscale-ui
+    community.docker.docker_container:
+      name: headscale-ui
+      restart_policy: unless-stopped
+      image: ghcr.io/gurucomputing/headscale-ui:latest

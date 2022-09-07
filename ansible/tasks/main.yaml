@@ -17,8 +17,8 @@
 - name: main - Container tasks
   import_playbook: packages/install-docker.yaml
 
-# - name: main - Docker Daemon tasks
-#   import_playbook: app/docker/docker-daemon.yaml
+- name: main - Docker Daemon tasks
+  import_playbook: app/docker/docker-daemon.yaml
 
 # - name: main - Userspace VPN tasks
 #   # import_playbook: app/userspace_vpn/01-openvpn.yaml  
@@ -26,3 +26,12 @@
 
 - name: main - fail2ban tasks
   import_playbook: app/fail2ban/fail2ban.yaml  
+
+- name: main - deploy portainer
+  import_playbook: app/docker/containers/portainer/portainer.yaml
+
+- name: main - deploy headscale
+  import_playbook: app/docker/containers/headscale/headscale.yaml
+
+- name: main - deploy headscale-ui
+  import_playbook: app/docker/containers/headscale/headscale-ui.yaml  
