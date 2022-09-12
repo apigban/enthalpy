@@ -1,0 +1,44 @@
+---
+- hosts: avogadro
+  become: true
+  gather_facts: false
+
+  tasks:
+  - name: Create caddy data volume
+    community.docker.docker_volume:
+      name: caddy_data
+
+  - name: Create caddy config volume
+    community.docker.docker_volume:
+      name: caddy_config
+      # path: /var/lib/docker/volumes/headscale_data/_data/config
+
+  - name: render Caddyfile from template
+    ansible.builtin.template:
+      src: templates/Caddyfile.j2
+      dest: /var/lib/docker/volumes/caddy_config/_data/Caddyfile
+
+  - name: Deploy caddy
+    community.docker.docker_container:
+      name: caddy
+      restart_policy: unless-stopped
+      image: caddy:latest
+      volumes:
+        - /var/lib/docker/volumes/caddy_config/_data/Caddyfile:/etc/caddy/Caddyfile
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /var/lib/docker/volumes/caddy_data/_data/:/data 
+        # this volume is needed to keep the certificates
+        # otherwise, new ones will be re-issued upon restart     
+      published_ports:
+        - 80:80
+        - 443:443
+      networks:
+        - name: frontend-public
+
+  - name: Deploy netshoot
+    community.docker.docker_container:
+      name: netshoot
+      restart_policy: unless-stopped
+      image: nicolaka/netshoot:latest
+      networks:
+        - name: frontend-public
