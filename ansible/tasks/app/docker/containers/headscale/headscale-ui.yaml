@@ -9,3 +9,8 @@
       name: headscale-ui
       restart_policy: unless-stopped
       image: ghcr.io/gurucomputing/headscale-ui:latest
+      published_ports:
+        - 443
+        - 80
+      networks:
+        - name: frontend-public
