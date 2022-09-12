@@ -3,7 +3,6 @@
   become: true
 
   tasks:
-
     - name: Create custom directory for docker
       file:
         path: "{{ mount.datadisk_01 }}/docker"
