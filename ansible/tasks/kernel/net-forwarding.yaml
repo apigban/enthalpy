@@ -4,7 +4,7 @@
   tasks:
 
   - name: Set IPV4 Forwarding
-    sysctl:
+    ansible.posix.sysctl:
       name: net.ipv4.ip_forward
       value: '1'
       sysctl_set: yes
