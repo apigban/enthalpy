@@ -1,0 +1,23 @@
+vpn.avogadro.apigban.com {
+  log
+
+  handle_path /register* {
+    rewrite * /{uri}
+    reverse_proxy https://headscale:8080
+  }
+}
+avogadro.apigban.com {
+  log
+  reverse_proxy https://headscale:8080 {
+      header_up Host avogadro.apigban.com
+  }
+  reverse_proxy /web* https://headscale-ui {
+                      transport http {
+                      tls_insecure_skip_verify
+                      }
+  }
+  handle_path /hs-metrics* {
+    rewrite * /metrics{uri}
+    reverse_proxy http://headscale:9090
+  }
+}
