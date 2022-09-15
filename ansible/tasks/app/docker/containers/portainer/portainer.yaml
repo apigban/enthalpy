@@ -3,16 +3,16 @@
 
   tasks:
   - name: pull portainer
-    docker_image:
-      pull: yes
+    community.docker.docker_image:
       name: portainer/portainer-ce:latest
+      source: pull
 
   - name: Create a volume
-    docker_volume:
+    community.docker.docker_volume:
       name: portainer_data
 
   - name: Start portainer, connect to network
-    docker_container:
+    community.docker.docker_container:
       name: portainer
       hostname: portainer
       restart_policy: "unless-stopped"
