@@ -3,14 +3,6 @@
   become: true
 
   tasks:
-  # - name: Retrive Name of Docker Container
-  #   shell: "docker ps --format '{% raw %}{{ .Names }}{% endraw %}'"
-  #   register: container_names
-
-  # - name: Prints docker container names
-  #   ansible.builtin.debug:
-  #     var: container_names
-
   - name: Create network
     community.docker.docker_network:
       name: frontend-public

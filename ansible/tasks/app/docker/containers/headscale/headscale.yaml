@@ -36,7 +36,7 @@
       mode: '0755'
 
   - name: Download headscale src
-    git:
+    ansible.builtin.git:
       repo: https://github.com/juanfont/headscale.git
       dest: /tmp/headscale
 
@@ -51,7 +51,7 @@
       source: build
 
 # This command will mount config/ under /etc/headscale,
-# forward port 8080,9090 out of the container so the headscale instance becomes available
+# forward port 80,9090 out of the container so the headscale instance becomes available
   - name: Start container, connect to network and link
     community.docker.docker_container:
       name: headscale

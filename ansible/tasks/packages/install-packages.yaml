@@ -4,15 +4,15 @@
 
   tasks:
   - name: Force cache update
-    apt:
+    ansible.builtin.apt:
       update_cache: yes
       
   - name: Install default packages
-    apt: 
+    ansible.builtin.apt: 
       name: "{{ default.apt_pkgs }}"
       state: latest
 
   - name: Install custom packages for avogadro group
-    apt: 
+    ansible.builtin.apt: 
       name: "{{ packages }}"
       state: latest
