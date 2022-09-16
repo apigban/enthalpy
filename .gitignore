@@ -51,3 +51,4 @@ terraform/providers
 ansible/nocommit
 ansible/groupvars/all/vault.yaml
 vault.yaml
+ansible/group_vars/avogadro/avogadro.yaml
