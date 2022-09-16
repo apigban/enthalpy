@@ -2,11 +2,6 @@
 - hosts: avogadro
 
   tasks:
-  - name: pull portainer
-    docker_image:
-      pull: yes
-      name: portainer/portainer-ce:latest
-
   - name: Create a volume
     docker_volume:
       name: portainer_data
