@@ -2,14 +2,6 @@
 - hosts: avogadro
 
   tasks:
-<<<<<<< HEAD
-=======
-  - name: pull portainer
-    community.docker.docker_image:
-      name: portainer/portainer-ce:latest
-      source: pull
-
->>>>>>> b77ed27eaa99ac7e3e69d5ddd0382083aed25616
   - name: Create a volume
     community.docker.docker_volume:
       name: portainer_data
