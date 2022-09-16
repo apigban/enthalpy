@@ -13,6 +13,16 @@
       name: authentik_cache_data
       state: present
 
+  - name: Create authentik server media volume
+    community.docker.docker_volume:
+      name: authentik_server_media
+      state: present      
+
+  - name: Create authentik server template volume
+    community.docker.docker_volume:
+      name: authentik_server_template
+      state: present  
+
   - name: Create database, connect to network
     community.docker.docker_container:
       name: authentik-postgres
@@ -61,3 +71,23 @@
       command: --save 60 1 --loglevel warning
       cpus: 0.25
       memory: 100M
+
+  - name: Create authentik-server, connect to network
+    community.docker.docker_container:
+      name: authentik-server
+      hostname: authentik-server
+      image: "beryju/authentik:latest"
+      command: server
+      restart_policy: "unless-stopped"
+      env:
+        AUTHENTIK_REDIS__HOST: authentik-redis
+        AUTHENTIK_POSTGRESQL__HOST: authentik-postgres
+        AUTHENTIK_POSTGRESQL__USER: "{{ user.authentik.db.username }}"
+        AUTHENTIK_POSTGRESQL__NAME: "{{ user.authentik.db.name }}"
+        AUTHENTIK_POSTGRESQL__PASSWORD: "{{ user.authentik.db.password }}"
+      volumes:
+        - "authentik_server_media:/media"
+        - "authentik_server_template:/templates"
+      ports:
+        - 9000:9000"
+        - 9001:9443"  
