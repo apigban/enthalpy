@@ -3,7 +3,7 @@
   become: yes
   tasks:
     - name: Create monitoring service account
-      user:
+      ansible.builtin.user:
         name: "{{ user.monitoring.name }}"
         password: "{{ user.monitoring.password | password_hash('sha512') }}"
         create_home: yes
@@ -16,7 +16,7 @@
 
 
     - name: Create ansible service account
-      user:
+      ansible.builtin.user:
         name: "{{ user.ansiblesvc.name }}"
         password: "{{ user.ansiblesvc.password | password_hash('sha512') }}"
         create_home: yes

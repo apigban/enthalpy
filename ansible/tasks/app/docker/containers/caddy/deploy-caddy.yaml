@@ -1,0 +1,42 @@
+---
+- hosts: avogadro
+  become: true
+  
+  tasks:
+  - name: Create caddy data volume
+    community.docker.docker_volume:
+      name: caddy_data
+      state: present
+
+  - name: Create caddy config volume
+    community.docker.docker_volume:
+      name: caddy_config
+      state: present
+
+  - name: Render Caddyfile from template
+    ansible.builtin.template:
+      src: templates/Caddyfile.j2
+      dest: /mnt/avogadro_datadisk_01/docker/volumes/caddy_config/_data/Caddyfile
+
+  - name: Deploy caddy
+    community.docker.docker_container:
+      name: caddy
+      restart_policy: unless-stopped
+      image: caddy:latest
+      volumes:
+        - /mnt/avogadro_datadisk_01/docker/volumes/caddy_config/_data/Caddyfile:/etc/caddy/Caddyfile
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /mnt/avogadro_datadisk_01/docker/volumes/caddy_config/_data/:/data    
+      published_ports:
+        - 80:80
+        - 443:443
+      networks:
+        - name: frontend-public
+
+  - name: Prepare network tshooting container image
+    community.docker.docker_container:
+      name: netshoot
+      restart_policy: unless-stopped
+      image: nicolaka/netshoot:latest
+      networks:
+        - name: frontend-public

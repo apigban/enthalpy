@@ -1,0 +1,8 @@
+---
+- hosts: avogadro
+  become: true
+
+  tasks:
+  - name: Create network
+    community.docker.docker_network:
+      name: frontend-public

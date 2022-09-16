@@ -1,0 +1,13 @@
+vpn.avogadro.apigban.com {
+  log
+
+  reverse_proxy http://headscale
+
+  reverse_proxy /metrics* http://headscale:9090
+
+  reverse_proxy /web* https://headscale-ui {
+                      transport http {
+                      tls_insecure_skip_verify
+                      }
+  }  
+}

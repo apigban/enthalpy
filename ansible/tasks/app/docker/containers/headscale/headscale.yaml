@@ -11,6 +11,11 @@
 # https://github.com/juanfont/headscale/blob/main/docs/running-headscale-container.md#configure-and-run-headscale
   - name: Prepare a directory, used to hold headscale configuration and the SQLite database
     ansible.builtin.file:
+      path: /var/lib/docker/volumes/headscale_config/_data/config
+      state: directory
+
+  - name: Prepare a directory, used to hold headscale data
+    ansible.builtin.file:
       path: /var/lib/docker/volumes/headscale_data/_data/config
       state: directory
 
@@ -22,8 +27,8 @@
   - name: render headscale config from template
     ansible.builtin.template:
       src: templates/config.yaml.j2
-      dest: /var/lib/docker/volumes/headscale_data/_data/config/config.yaml
-
+      dest: /var/lib/docker/volumes/headscale_config/_data/config/config.yaml
+      
   - name: Create a build directory if it does not exist
     file:
       path: /tmp/headscale
@@ -31,7 +36,7 @@
       mode: '0755'
 
   - name: Download headscale src
-    git:
+    ansible.builtin.git:
       repo: https://github.com/juanfont/headscale.git
       dest: /tmp/headscale
 
@@ -46,19 +51,21 @@
       source: build
 
 # This command will mount config/ under /etc/headscale,
-# forward port 8080,9090 out of the container so the headscale instance becomes available
+# forward port 80,9090 out of the container so the headscale instance becomes available
   - name: Start container, connect to network and link
     community.docker.docker_container:
       name: headscale
       restart_policy: unless-stopped
       image: headscale:latest
       volumes:
-        - /var/lib/docker/volumes/headscale_data/_data/config/:/etc/headscale/
-        - ./container-data/data:/var/lib/headscale
+        - /var/lib/docker/volumes/headscale_config/_data/config/:/etc/headscale/
+        - /var/lib/docker/volumes/headscale_config/_data/:/var/lib/headscale
       published_ports:
-        - 8080:8080
-        - 9090:9090
+        - 80
+        - 9090
       command: headscale serve
+      networks:
+        - name: frontend-public
 
   - name: Create a VPN namespace
     ansible.builtin.command: /usr/bin/docker exec headscale headscale namespaces create homelab

@@ -30,4 +30,7 @@
   import_playbook: app/docker/containers/headscale/headscale.yaml
 
 - name: main - deploy headscale-ui
-  import_playbook: app/docker/containers/headscale/headscale-ui.yaml  
+  import_playbook: app/docker/containers/headscale/headscale-ui.yaml
+
+- name: main - deploy caddy and apply routes
+  import_playbook: app/docker/containers/caddy/deploy-caddy.yaml  
