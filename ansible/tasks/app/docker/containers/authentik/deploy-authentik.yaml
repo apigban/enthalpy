@@ -27,5 +27,5 @@
         - name: auth-backend
       environment:
         - POSTGRES_PASSWORD={{ user.authentik.db.password }}
-        - POSTGRES_USER={{ user.authentik.db.name }}
-        - POSTGRES_DB=authentik-postgres
+        - POSTGRES_USER={{ user.authentik.db.username }}
+        - POSTGRES_DB={{ user.authentik.db.name }}

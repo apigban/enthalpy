@@ -34,3 +34,6 @@
 
 - name: main - deploy caddy and apply routes
   import_playbook: app/docker/containers/caddy/deploy-caddy.yaml  
+
+- name: main - deploy authentik
+  import_playbook: app/docker/containers/authentik/deploy-authentik.yaml  
