@@ -14,15 +14,11 @@
 - name: main - login tasks
   import_playbook: login/user-group-creation.yaml
 
-- name: main - Container tasks
+- name: main - Container tasksyes
   import_playbook: packages/install-docker.yaml
 
 - name: main - Docker Daemon tasks
   import_playbook: app/docker/docker-daemon.yaml
-
-# - name: main - Userspace VPN tasks
-#   # import_playbook: app/userspace_vpn/01-openvpn.yaml  
-#   import_playbook: app/userspace_vpn/wireguard.yaml
 
 - name: main - fail2ban tasks
   import_playbook: app/fail2ban/fail2ban.yaml  
