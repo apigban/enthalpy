@@ -3,6 +3,16 @@
   become: true
 
   tasks:
+  - name: Create authentik data volume
+    community.docker.docker_volume:
+      name: authentik_database_data
+      state: present
+
+  - name: Create cache data volume
+    community.docker.docker_volume:
+      name: authentik_cache_data
+      state: present
+
   - name: Create database, connect to network
     community.docker.docker_container:
       name: authentik-postgres
@@ -15,17 +25,39 @@
         retries: 5
         timeout: 5s
       restart_policy: "unless-stopped"
-      published_ports:
-        - "8000:8000"
-        - "9443:9443"
       volumes:
-        - "database:/var/lib/postgresql/data"
+        - "authentik_database_data:/var/lib/postgresql/data"
         - "/var/run/docker.sock:/var/run/docker.sock"
       state: "started"
       keep_volumes: "yes"
       networks:
         - name: auth-backend
-      environment:
-        - POSTGRES_PASSWORD={{ user.authentik.db.password }}
-        - POSTGRES_USER={{ user.authentik.db.username }}
-        - POSTGRES_DB={{ user.authentik.db.name }}
+      env:
+        POSTGRES_PASSWORD: "{{ user.authentik.db.password }}"
+        POSTGRES_USER: "{{ user.authentik.db.username }}"
+        POSTGRES_DB: "{{ user.authentik.db.name }}"
+      cpus: 0.25
+      memory: 200M
+
+  - name: Create cache, connect to network
+    community.docker.docker_container:
+      name: authentik-redis
+      hostname: authentik-redis
+      image: "docker.io/library/redis:alpine"
+      restart_policy: "unless-stopped"
+      healthcheck:
+        test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+        start_period: 20s
+        interval: 30s
+        retries: 5
+        timeout: 3s
+      volumes:
+        - "authentik_cache_data:/var/lib/postgresql/data"
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      state: "started"
+      keep_volumes: "yes"
+      networks:
+        - name: auth-backend
+      command: --save 60 1 --loglevel warning
+      cpus: 0.25
+      memory: 100M
