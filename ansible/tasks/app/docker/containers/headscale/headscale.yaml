@@ -60,7 +60,7 @@
       volumes:
         - /var/lib/docker/volumes/headscale_config/_data/config/:/etc/headscale/
         - /var/lib/docker/volumes/headscale_config/_data/:/var/lib/headscale
-      published_ports:
+      exposed_ports:
         - 80
         - 9090
       command: headscale serve
