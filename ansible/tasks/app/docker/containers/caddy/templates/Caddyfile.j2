@@ -1,4 +1,4 @@
-vpn.avogadro.apigban.com {
+vpn.{{ host.name }}.apigban.com {
   log
 
   reverse_proxy http://headscale
@@ -10,4 +10,14 @@ vpn.avogadro.apigban.com {
                       tls_insecure_skip_verify
                       }
   }  
+}
+
+auth.{{ host.name }}.apigban.com {
+  log
+  reverse_proxy http://authentik-server:9000
+}
+
+portainer.{{ host.name }}.apigban.com {
+  log
+  reverse_proxy https://portainer:9443
 }
