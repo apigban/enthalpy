@@ -1,0 +1,55 @@
+---
+- hosts: avogadro
+  become: true
+
+  tasks:
+  - name: Create prometheus config volume
+    community.docker.docker_volume:
+      name: mon-prometheus_config
+      state: present
+
+  - name: Render prometheus configuration from template
+    ansible.builtin.template:
+      src: templates/prometheus.yaml.j2
+      dest: /mnt/avogadro_datadisk_01/docker/volumes/mon-prometheus_config/_data/prometheus.yaml
+
+  # - name: Create cache data volume
+  #   community.docker.docker_volume:
+  #     name: authentik_cache_data
+  #     state: present
+
+  # - name: Create authentik server media volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_media
+  #     state: present     
+
+  # - name: Create authentik server template volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_template
+  #     state: present  
+
+  # - name: Create authentik server geoip volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_geoip
+  #     state: present  
+
+  # - name: Create authentik server certs volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_certs
+  #     state: present        
+
+
+  - name: Create prometheus container, connect to network
+    community.docker.docker_container:
+      name: mon-prometheus
+      hostname: mon-prometheus
+      image: "prom/prometheus:v2.38.0"
+      restart_policy: "unless-stopped"
+      volumes:
+        - "mon-prometheus_config:/etc/prometheus/prometheus.yaml"
+      state: "started"
+      keep_volumes: "yes"
+      networks:
+        - name: auth-backend
+        - name: frontend-public 
+      command: --config.file=/etc/prometheus/prometheus.yaml
