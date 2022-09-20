@@ -104,7 +104,7 @@
         - "authentik_server_media:/media"
         - "authentik_server_template:/templates"
         - "authentik_server_geoip:/geoip"
-      published_ports:
+      exposed_ports:
         - 9000
         - 9443
       networks:

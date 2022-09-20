@@ -12,9 +12,9 @@
       hostname: portainer
       restart_policy: "unless-stopped"
       image: "portainer/portainer-ce:latest"
-      published_ports:
-        - "8000:8000"
-        - "9443:9443"
+      exposed_ports:
+        - 8000
+        - 9443
       volumes:
         - "portainer_data:/data"
         - "/var/run/docker.sock:/var/run/docker.sock"
