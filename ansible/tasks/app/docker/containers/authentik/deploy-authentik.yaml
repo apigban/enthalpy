@@ -1,0 +1,162 @@
+---
+- hosts: avogadro
+  become: true
+
+  tasks:
+  - name: Create authentik data volume
+    community.docker.docker_volume:
+      name: authentik_database_data
+      state: present
+
+  - name: Create cache data volume
+    community.docker.docker_volume:
+      name: authentik_cache_data
+      state: present
+
+  - name: Create authentik server media volume
+    community.docker.docker_volume:
+      name: authentik_server_media
+      state: present     
+
+  - name: Create authentik server template volume
+    community.docker.docker_volume:
+      name: authentik_server_template
+      state: present  
+
+  - name: Create authentik server geoip volume
+    community.docker.docker_volume:
+      name: authentik_server_geoip
+      state: present  
+
+  - name: Create authentik server certs volume
+    community.docker.docker_volume:
+      name: authentik_server_certs
+      state: present        
+
+  - name: Create database, connect to network
+    community.docker.docker_container:
+      name: authentik-postgres
+      hostname: authentik-postgres
+      image: "docker.io/library/postgres:12-alpine"
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -d authentik-postgres -U {{ app.authentik.db.POSTGRES_USER }}"]
+        start_period: 20s
+        interval: 30s
+        retries: 5
+        timeout: 5s
+      restart_policy: "unless-stopped"
+      volumes:
+        - "authentik_database_data:/var/lib/postgresql/data"
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      state: "started"
+      keep_volumes: "yes"
+      networks:
+        - name: auth-backend
+      env:
+        POSTGRES_PASSWORD: "{{ app.authentik.db.POSTGRES_PASSWORD }}"
+        POSTGRES_USER: "{{ app.authentik.db.POSTGRES_USER }}"
+        POSTGRES_DB: "{{ app.authentik.db.POSTGRES_DB }}"
+      cpus: 0.25
+      memory: 200M
+
+  - name: Create cache, connect to network
+    community.docker.docker_container:
+      name: authentik-redis
+      hostname: authentik-redis
+      image: "docker.io/library/redis:alpine"
+      restart_policy: "unless-stopped"
+      healthcheck:
+        test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+        start_period: 20s
+        interval: 30s
+        retries: 5
+        timeout: 3s
+      volumes:
+        - "authentik_cache_data:/var/lib/postgresql/data"
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      state: "started"
+      keep_volumes: "yes"
+      networks:
+        - name: auth-backend
+      command: --save 60 1 --loglevel warning
+      cpus: 0.25
+      memory: 100M
+
+  - name: Create authentik-server, connect to network
+    community.docker.docker_container:
+      name: authentik-server
+      hostname: authentik-server
+      image: "beryju/authentik:latest"
+      command: ["server"]
+      restart_policy: "unless-stopped"
+      state: "started"
+      env:
+        AUTHENTIK_REDIS__HOST: "{{ app.authentik.server.AUTHENTIK_REDIS__HOST }}"
+        AUTHENTIK_POSTGRESQL__HOST: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__HOST }}"
+        AUTHENTIK_POSTGRESQL__USER: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__USER }}"
+        AUTHENTIK_POSTGRESQL__NAME: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__NAME }}"
+        AUTHENTIK_POSTGRESQL__PASSWORD: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__PASSWORD }}"
+        AUTHENTIK_AUTHENTIK__GEOIP: "{{ app.authentik.server.AUTHENTIK_AUTHENTIK__GEOIP }}"
+        AUTHENTIK_SECRET_KEY: "{{ app.authentik.server.AUTHENTIK_SECRET_KEY }}"
+        GEOIPUPDATE_ACCOUNT_ID: "{{ app.authentik.server.GEOIPUPDATE_ACCOUNT_ID }}"
+        GEOIPUPDATE_LICENSE_KEY: "{{ app.authentik.server.GEOIPUPDATE_LICENSE_KEY }}"
+      volumes:
+        - "authentik_server_media:/media"
+        - "authentik_server_template:/templates"
+        - "authentik_server_geoip:/geoip"
+      published_ports:
+        - 9000
+        - 9443
+      networks:
+        - name: frontend-public
+        - name: auth-backend
+      cpus: 0.5
+      memory: 400M
+
+  - name: Create authentik-worker, connect to network
+    community.docker.docker_container:
+      name: authentik-worker
+      hostname: authentik-worker
+      image: "beryju/authentik:latest"
+      command: ["worker"]
+      restart_policy: "unless-stopped"
+      state: "started"
+      env:
+        AUTHENTIK_REDIS__HOST: "{{ app.authentik.server.AUTHENTIK_REDIS__HOST }}"
+        AUTHENTIK_POSTGRESQL__HOST: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__HOST }}"
+        AUTHENTIK_POSTGRESQL__USER: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__USER }}"
+        AUTHENTIK_POSTGRESQL__NAME: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__NAME }}"
+        AUTHENTIK_POSTGRESQL__PASSWORD: "{{ app.authentik.server.AUTHENTIK_POSTGRESQL__PASSWORD }}"
+        AUTHENTIK_AUTHENTIK__GEOIP: "{{ app.authentik.server.AUTHENTIK_AUTHENTIK__GEOIP }}"
+        AUTHENTIK_SECRET_KEY: "{{ app.authentik.server.AUTHENTIK_SECRET_KEY }}"
+        GEOIPUPDATE_ACCOUNT_ID: "{{ app.authentik.server.GEOIPUPDATE_ACCOUNT_ID }}"
+        GEOIPUPDATE_LICENSE_KEY: "{{ app.authentik.server.GEOIPUPDATE_LICENSE_KEY }}"
+      user: root
+      volumes:
+        - "authentik_server_media:/media"
+        - "authentik_server_certs:/certs"
+        - "authentik_server_template:/templates"
+        - "authentik_server_geoip:/geoip"
+        - /var/run/docker.sock:/var/run/docker.sock
+      networks:
+        - name: auth-backend
+      cpus: 0.5
+      memory: 400M
+
+  - name: Create geoipupdate container, connect to network
+    community.docker.docker_container:
+      name: authentik-geoipupdate
+      hostname: authentik-geoipupdate
+      image: "maxmindinc/geoipupdate:latest"
+      state: "started"
+      volumes:
+        - "authentik_server_geoip:/usr/share/GeoIP"
+      env:
+        GEOIPUPDATE_EDITION_IDS: "GeoLite2-City"
+        GEOIPUPDATE_FREQUENCY: "8"
+        GEOIPUPDATE_ACCOUNT_ID: "{{ app.authentik.server.GEOIPUPDATE_ACCOUNT_ID }}"
+        GEOIPUPDATE_LICENSE_KEY: "{{ app.authentik.server.GEOIPUPDATE_LICENSE_KEY }}"
+      networks:
+        - name: auth-backend
+      cpus: 0.5
+      memory: 400M

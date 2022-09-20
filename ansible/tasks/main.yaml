@@ -20,6 +20,9 @@
 - name: main - Docker Daemon tasks
   import_playbook: app/docker/docker-daemon.yaml
 
+- name: main - Create docker network
+  import_playbook: app/docker/docker-network.yaml
+
 - name: main - fail2ban tasks
   import_playbook: app/fail2ban/fail2ban.yaml  
 
@@ -34,3 +37,6 @@
 
 - name: main - deploy caddy and apply routes
   import_playbook: app/docker/containers/caddy/deploy-caddy.yaml  
+
+- name: main - deploy authentik
+  import_playbook: app/docker/containers/authentik/deploy-authentik.yaml  

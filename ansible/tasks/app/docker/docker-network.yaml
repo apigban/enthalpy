@@ -6,3 +6,7 @@
   - name: Create network
     community.docker.docker_network:
       name: frontend-public
+
+  - name: Create network
+    community.docker.docker_network:
+      name: auth-backend
