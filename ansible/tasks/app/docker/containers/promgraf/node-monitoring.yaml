@@ -1,0 +1,24 @@
+---
+- hosts: avogadro
+  become: true
+
+  tasks:
+  - name: Download file node_exporter-1.3.1.linux-amd64.tar.gz (sha256)
+    ansible.builtin.get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
+      dest: /tmp/node_exporter-1.3.1.linux-amd64.tar.gz
+      checksum: sha256:68f3802c2dd3980667e4ba65ea2e1fb03f4a4ba026cca375f15a0390ff850949
+
+  - name: Extract nodeexporter archive
+    ansible.builtin.unarchive:
+      src: /tmp/node_exporter-1.3.1.linux-amd64.tar.gz
+      dest: /tmp/
+
+  - name: Copy node_exporter binary to /usr/bin/node_exporter
+    ansible.builtin.copy:
+      src: /tmp/node_exporter-1.3.1.linux-amd64/node_exporter
+      dest: /usr/bin/node_exporter
+      remote_src: yes
+
+  - name: Run a script with arguments
+    ansible.builtin.script: /usr/bin/node_exporter
