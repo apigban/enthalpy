@@ -18,44 +18,6 @@
       src: templates/prometheus.yaml.j2
       dest: /mnt/avogadro_datadisk_01/docker/volumes/mon-prometheus_config/_data/prometheus.yaml
 
-  # - name: Create grafana data volume
-  #   community.docker.docker_volume:
-  #     name: mon-grafana_data
-  #     state: present  
-
-  # - name: Create grafana provisioning/config volume
-  #   community.docker.docker_volume:
-  #     name: mon-grafana_provisioning
-  #     state: present 
-
-  # - name: Create a grafana/config directory in volume
-  #   ansible.builtin.file:
-  #     path: /mnt/avogadro_datadisk_01/docker/volumes/mon-grafana_provisioning/_data/grafana/provisioning
-  #     state: directory
-  #     mode: '0755'
-
-
-
-  # - name: Render grafana configuration file from template
-  #   ansible.builtin.template:
-  #     src: templates/grafana-config.monitoring.j2
-  #     dest: /mnt/avogadro_datadisk_01/docker/volumes/mon-grafana_provisioning/_data/config.monitoring
-
-  # - name: Create authentik server media volume
-  #   community.docker.docker_volume:
-  #     name: authentik_server_media
-  #     state: present     
-
-  # - name: Create authentik server template volume
-  #   community.docker.docker_volume:
-  #     name: authentik_server_template
-  #     state: present  
-
-  # - name: Create authentik server geoip volume
-  #   community.docker.docker_volume:
-  #     name: authentik_server_geoip
-  #     state: present  
-        
   - name: Create cadvisor container, connect to network
     community.docker.docker_container:
       name: mon-cadvisor
@@ -100,30 +62,51 @@
         "--web.console.templates=/usr/share/prometheus/consoles"
       ]
 
-  # - name: Create grafana container
-  #   community.docker.docker_container:
-  #     name: mon-grafana
-  #     hostname: mon-grafana
-  #     image: "grafana/grafana-oss"
-  #     restart_policy: "unless-stopped"
-  #     volumes:
-  #       - mon-grafana_data:/var/lib/grafana
-  #       - mon-grafana_provisioning:/etc/grafana/provisioning/
+  # - name: Create grafana-agent config volume
+  #   community.docker.docker_volume:
+  #     name: mon-grafana-agent_config
+  #     state: present
 
-  #     state: "started"
-  #     keep_volumes: "yes"
-  #     exposed_ports: 
-  #       - 3000
-  #     networks:
-  #       - name: auth-backend
-  #       - name: frontend-public 
-  #     command: [
-  #       "--config.file=/etc/prometheus/prometheus.yaml",
-  #       "--storage.tsdb.path=/prometheus",
-  #       "--storage.tsdb.retention.time=7d",
-  #       "--storage.tsdb.retention.size=5GB",
-  #       "--web.console.libraries=/usr/share/prometheus/console_libraries",
-  #       "--web.console.templates=/usr/share/prometheus/consoles"
-  #     ]
-      
-      
+  # - name: Render grafana-agent configuration from template
+  #   ansible.builtin.template:
+  #     src: templates/grafana-agent.yaml.j2
+  #     dest: /mnt/avogadro_datadisk_01/docker/volumes/mon-grafana-agent_config/_data/grafana-agent.yaml
+
+  # - name: Create grafana data volume
+  #   community.docker.docker_volume:
+  #     name: mon-grafana_data
+  #     state: present  
+
+  # - name: Create grafana provisioning/config volume
+  #   community.docker.docker_volume:
+  #     name: mon-grafana_provisioning
+  #     state: present 
+
+  # - name: Create a grafana/config directory in volume
+  #   ansible.builtin.file:
+  #     path: /mnt/avogadro_datadisk_01/docker/volumes/mon-grafana_provisioning/_data/grafana/provisioning
+  #     state: directory
+  #     mode: '0755'
+
+
+
+  # - name: Render grafana configuration file from template
+  #   ansible.builtin.template:
+  #     src: templates/grafana-config.monitoring.j2
+  #     dest: /mnt/avogadro_datadisk_01/docker/volumes/mon-grafana_provisioning/_data/config.monitoring
+
+  # - name: Create authentik server media volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_media
+  #     state: present     
+
+  # - name: Create authentik server template volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_template
+  #     state: present  
+
+  # - name: Create authentik server geoip volume
+  #   community.docker.docker_volume:
+  #     name: authentik_server_geoip
+  #     state: present  
+        
