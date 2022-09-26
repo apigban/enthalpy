@@ -1,0 +1,50 @@
+---
+- hosts: avogadro
+  become: true
+  vars:
+    agent_binary_location: "{{ app.monitoring.grafana_cloud.agent.bin_location }}"
+    linux_architecture: "{{ app.monitoring.grafana_cloud.agent.linux_arch }}"
+    agent_config_local_path: "{{ app.monitoring.grafana_cloud.agent.config_local_path }}"
+    agent_version: "{{ app.monitoring.grafana_cloud.agent.version }}"
+
+  tasks:
+    - name: Ensure unzip is installed.
+      ansible.builtin.apt: 
+        name: "unzip"
+        state: latest
+  
+    - name: Download Grafana Agent binary
+      get_url:
+        url: "https://github.com/grafana/agent/releases/download/v{{ agent_version }}/agent-{{ linux_architecture }}.zip"
+        dest: "/tmp/agent-linux.zip"
+        mode: '0644'
+
+    - name: Unarchive Grafana Agent binary
+      ansible.builtin.unarchive:
+        src: "/tmp/agent-linux.zip"
+        dest: "{{ agent_binary_location }}"
+        remote_src: yes
+        mode: '0755'
+
+    - name: Create grafana-agent config volume
+      community.docker.docker_volume:
+        name: mon-grafana-agent_config
+        state: present
+
+    - name: Render grafana-agent configuration from template
+      ansible.builtin.template:
+        src: templates/grafana-agent.yaml.j2
+        dest: /mnt/avogadro_datadisk_01/docker/volumes/mon-grafana-agent_config/_data/grafana-agent.yaml
+
+    - name: Render grafana-agent-service unit file from template
+      ansible.builtin.template:
+        src: templates/grafana-agent.service.j2
+        dest: /etc/systemd/system/grafana-agent.service
+        mode: 775
+
+    - name: Start Grafana Agent service
+      systemd:
+        daemon_reload: yes
+        name: grafana-agent
+        enabled: yes
+        state: restarted
