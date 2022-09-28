@@ -30,6 +30,7 @@
       published_ports:
         - 80:80
         - 443:443
+        - 2020:2020
       networks:
         - name: frontend-public
 
