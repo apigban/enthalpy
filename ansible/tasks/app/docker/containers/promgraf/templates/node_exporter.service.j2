@@ -1,0 +1,10 @@
+[Unit]
+Description=starts node-exporter service
+
+[Service]
+ExecStart=/usr/bin/node_exporter
+Type=simple
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

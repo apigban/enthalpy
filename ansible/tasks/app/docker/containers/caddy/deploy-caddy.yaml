@@ -24,7 +24,7 @@
       restart_policy: unless-stopped
       image: caddy:latest
       volumes:
-        - /mnt/avogadro_datadisk_01/docker/volumes/caddy_config/_data/Caddyfile:/etc/caddy/Caddyfile
+        - /mnt/avogadro_datadisk_01/docker/volumes/caddy_config/_data/:/etc/caddy/
         - /var/run/docker.sock:/var/run/docker.sock
         - /mnt/avogadro_datadisk_01/docker/volumes/caddy_config/_data/:/data    
       published_ports:

@@ -40,3 +40,12 @@
 
 - name: main - deploy authentik
   import_playbook: app/docker/containers/authentik/deploy-authentik.yaml  
+
+- name: main - deploy host metrics exporter
+  import_playbook: app/docker/containers/promgraf/node-monitoring.yaml  
+
+- name: main - deploy prometheus
+  import_playbook: app/docker/containers/promgraf/deploy-prometheus.yaml  
+
+- name: main - Install Grafana Agent
+  import_playbook: app/docker/containers/promgraf/install-grafana-agent.yaml

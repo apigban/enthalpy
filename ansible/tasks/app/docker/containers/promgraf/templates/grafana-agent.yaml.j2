@@ -1,0 +1,22 @@
+server:
+  log_level: info
+
+metrics:
+  wal_directory: /tmp/agent
+  global:
+    scrape_interval: 60s
+    remote_write:
+    - url: {{ app.monitoring.grafana_cloud.prom_remote_write_endpoint }}
+      basic_auth:
+        username: {{ app.monitoring.grafana_cloud.prom_metrics_instance_id }}
+        password: {{ app.monitoring.grafana_cloud.prom_metrics_publisher_api_key_secret }}
+
+integrations:
+  node_exporter:
+    enabled: true
+    rootfs_path: /root
+    sysfs_path: /sys
+    procfs_path: /proc
+  cadvisor:
+    enabled: true
+    docker_only: true

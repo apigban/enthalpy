@@ -1,0 +1,9 @@
+[Unit]
+Description=Grafana Agent
+
+[Service]
+ExecStart={{ agent_binary_location }}/agent-{{ linux_architecture }} --config.file=/mnt/avogadro_datadisk_01/docker/volumes/mon-grafana-agent_config/_data/{{ agent_config_local_path }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
